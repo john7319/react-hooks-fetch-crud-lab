@@ -1,6 +1,6 @@
 import React from "react";
 
-function QuestionItem({ question }) {
+function QuestionItem({ question, handleRemoveQuestion }) {
   const { id, prompt, answers, correctIndex } = question;
 
   const options = answers.map((answer, index) => (
@@ -8,6 +8,26 @@ function QuestionItem({ question }) {
       {answer}
     </option>
   ));
+  function handleDelete() {
+    const questionId = question.id
+    fetch(`http://localhost:4000/questions/${questionId}`, {
+      method: "DELETE"
+    })
+    .then(() => handleRemoveQuestion(questionId))
+  }
+  function handleUpdate(index) {    
+    fetch(`http://localhost:4000/questions/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        correctIndex: index
+      })
+    })
+    .then(response => response.json())
+    .then(updatedQuestion => console.log("Updated Question:", updatedQuestion))
+  }
 
   return (
     <li>
@@ -15,9 +35,9 @@ function QuestionItem({ question }) {
       <h5>Prompt: {prompt}</h5>
       <label>
         Correct Answer:
-        <select defaultValue={correctIndex}>{options}</select>
+        <select defaultValue={correctIndex} onChange={e => handleUpdate(e.target.value)}>{options}</select>
       </label>
-      <button>Delete Question</button>
+      <button onClick={handleDelete}>Delete Question</button>
     </li>
   );
 }
